@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.jmatio.io.MatFileReader;
@@ -12,12 +13,8 @@ public class NeuralNet {
 	int InputLayer = 0;
 	int Neurons = 0;
 	int OutputLayer = 0;
-	double maxOut, minOut;
 	double [][]pix,lab;
-	boolean cont2;
-	int cont1 = 0;
-	double []max,min;
-	double []maxL,minL;
+	boolean part1 = true, part2 = true;
 	String name, ANNi, ANNl;
 	
 	public NeuralNet(String nome, String ANNimagens, String ANNlabels, int IL, int N, int OL) throws FileNotFoundException, IOException{
@@ -28,10 +25,6 @@ public class NeuralNet {
 		name = nome;
 		ANNi = ANNimagens;
 		ANNl = ANNlabels;
-		maxOut = 0;
-		minOut = 0;
-		cont1 = 0;
-		cont2 = true;
 	}
 	
 	public double min(double[] teste) {
@@ -54,6 +47,22 @@ public class NeuralNet {
 		}
 			
 		return max;
+	}
+	
+	public double[] maxmin(double[] teste) throws InterruptedException{
+		
+		double[] norma = new double[2];
+		norma[0] = teste[0]; // max
+		norma[1] = teste[0]; // min
+		
+		for(int n=0;n<teste.length;n++) {
+			if(teste[n]>norma[0])
+				norma[0] = teste[n];
+			if(teste[n]<norma[1])
+				norma[1] = teste[n];
+		}
+		
+		return norma;
 	}
 
 	public double[] matlabWeights(String nome, String ANNimagens, String ANNlabels) throws FileNotFoundException, IOException {
@@ -80,41 +89,40 @@ public class NeuralNet {
 		return w;
 	}
 	
-	public void normalizeInput(double[] imagem) throws FileNotFoundException, IOException {
-	
+	public void normalizeInput(double[] imagem) throws FileNotFoundException, IOException, InterruptedException {
+		
+		double max,min;
+		
 		for(int i = 0; i<imagem.length;i++) {
+			if(part1)
+				Arrays.sort(pix[i]);
 			
-			if(cont1!=2) {
-				max = new double[imagem.length];
-				min = new double[imagem.length];
-				max[i] = max(pix[i]);
-				min[i] = min(pix[i]);
-			}
+			min = pix[i][0];
+			max = pix[i][pix[i].length-1];
 			
-			imagem[i] = (2*(imagem[i]-min[i])/(max[i]-min[i]))-1;
+			imagem[i] = (2*(imagem[i]-min)/(max-min))-1;
 		}
 		
-		//cont1++;
+		part1 = false;
 	}
 	
-	public void normalizeOutput(double[] resultOL) throws FileNotFoundException, IOException {
+	public void normalizeOutput(double[] resultOL) throws FileNotFoundException, IOException, InterruptedException {
 		
+		double max,min;
 		for(int i = 0; i<OutputLayer;i++) {
-			if(cont2) {
-				maxL = new double[OutputLayer];
-				minL = new double[OutputLayer];
-				maxOut = max(lab[i]);
-				maxL[i] = max(lab[i]);
-				minOut = min(lab[i]);
-				minL[i] = min(lab[i]);	
-			}
-			resultOL[i] = ((resultOL[i]+1)*(maxL[i]-minL[i])/2)+minL[i];
+			if(part2)
+				Arrays.sort(lab[i]);
+			
+			min = lab[i][0];
+			max = lab[i][lab[i].length-1];
+			
+			resultOL[i] = ((resultOL[i]+1)*(max-min)/2)+min;
 		}
 		
-		//cont2 = false;
+		part2 = false;
 	}
 	
-	public double[] calculate(double[] matrix) throws FileNotFoundException, IOException {
+	public double[] calculate(double[] matrix) throws FileNotFoundException, IOException, InterruptedException {
 		
 		double[] imagem = matrix.clone();
 		normalizeInput(imagem);

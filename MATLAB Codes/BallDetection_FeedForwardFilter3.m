@@ -19,8 +19,8 @@ Passar1 = zeros((width/reduz)*(heigth/reduz)*3,total,(reduz*reduz));
 ANNbolaI = zeros((width/reduz)*(heigth/reduz)*3,total*(reduz*reduz));
 ANNbolaL = dados6;
 ANNvalidations = zeros(20,total+1);
-pasta='C:\Users\Gilmar Correia\Documents\Documentos\Projetos\GitHub\RNA-OpenCV\Licoes\LaplacianFilter\';
-%pasta = '/Users/junior/Desktop/GitHub/RNA-OpenCV/Licoes/LaplacianFilter/';
+%pasta='C:\Users\Gilmar Correia\Documents\Documentos\Projetos\GitHub\RNA-OpenCV\Licoes\LaplacianFilter\';
+pasta = '/Users/junior/Desktop/GitHub/RNA-OpenCV/Licoes/LaplacianFilter/';
 
 imagem=1;
 t = 1;
@@ -65,7 +65,7 @@ save('ANNbolaL.mat','ANNbolaL');
 
 %% TREINANDO O FILTRO
 
-for r = 10
+for r = 1:12
     netFilter = feedforwardnet(r);
     netFilter.trainParam.max_fail = 100;
     netFilter.trainParam.time = 360;

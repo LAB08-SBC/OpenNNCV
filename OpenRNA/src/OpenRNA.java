@@ -63,7 +63,7 @@ public class OpenRNA extends Matriz{
 		
 		Mat webcamMatImage = new Mat(); 
 		initGUI();
-		VideoCapture capture = new VideoCapture(1);
+		VideoCapture capture = new VideoCapture(0);
 		
 		capture.set(Videoio.CAP_PROP_FRAME_WIDTH,width);
 		capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,heigth);
@@ -86,7 +86,7 @@ public class OpenRNA extends Matriz{
 		System.out.println("y: " + netPos.calculate(fotoBCE_DE)[1]); //  95,0000240373988
 		System.out.println("S: " + netS.calculate(fotoBCG_DFSD)[0]);  // 31,0000000000000
 		
-		NeuralNet BOLA = new NeuralNet("WR_BOLA","ANNbolaI","ANNbolaL",144,7,1);
+		NeuralNet BOLA = new NeuralNet("WR_BOLA","ANNbolaI","ANNbolaL",144,12,1);
 		NeuralNet MARCAS = new NeuralNet("WR_MARCAS","ANNmarcasI","ANNmarcasL",48,11,1);
 		NeuralNet GOL = new NeuralNet("WR_GOL","ANNgolI","ANNgolL",144,8,1);
 		NeuralNet OP = new NeuralNet("WR_OP","ANNopI","ANNopL",144,9,1);
@@ -155,7 +155,7 @@ public class OpenRNA extends Matriz{
 				/*
 				 * Tratando os segmentos de imagens para Bola
 				 */
-				/*matBC(imagemBola,1.15,10);
+				matBC(imagemBola,1.15,10);
 				int i,a = 0,c = 0;
 				Mat akk = new Mat(new Size(6,8), CvType.CV_8UC3);
 
@@ -182,7 +182,7 @@ public class OpenRNA extends Matriz{
 					
 					c+=8;
 				}
-				*/
+				
 				
 				/*
 				 * Tratando os segmentos de imagens para MARCAS
@@ -209,7 +209,7 @@ public class OpenRNA extends Matriz{
 					}
 					
 					if(MARCAS.calculate(rnaMarcas)[0] >= 0.5)
-						matJointRegion3(imagemMarcas, new int[] {0,0,255}, a, c, 6, 8);
+						matJointRegion3(imagemMarcas, new int[] {0,0,255}, a, c, 6, 8);//a , c 
 					
 					c+=8;
 				}
@@ -281,20 +281,22 @@ public class OpenRNA extends Matriz{
 				*/
 				
 				/*
-				 * validando RNA
+				 * validando RNA da BOLA 
 				 */
-				//Point coord = new Point(netPos.calculate(rna1)[0],netPos.calculate(rna1)[1]);
-				//double radius =  netS.calculate(rna2)[0]*0.8;
+				
+				/*Point coord = new Point(netPos.calculate(rna1)[0],netPos.calculate(rna1)[1]);
+				double radius =  netS.calculate(rna2)[0]*0.8;
 				
 				//System.out.println("x: " + coord.x + " y: " + coord.y + " S: " + radius);				   
-				//if(radius>0)
-					//Imgproc.circle(webcamMatImage, coord, (int) radius, new Scalar(255,255,255), 5);
+				if(radius>0)
+					Imgproc.circle(webcamMatImage, coord, (int) radius, new Scalar(255,255,255), 5);
+				*/
 				
-				matVideo(frame, imageLabel,imagemOP);
+				matVideo(frame, imageLabel,imagemBola);
 				
 				//Imgcodecs.imwrite("FINAL_"+pos+".jpg",imagemOP);
 				
-				//Thread.sleep(5000);
+				//Thread.sleep(500);
 				//pos++;
 			}  
 		}
