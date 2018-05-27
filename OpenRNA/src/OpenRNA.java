@@ -27,17 +27,26 @@ public class OpenRNA extends Matriz{
 	
 	private static JFrame frame;
 	private static JLabel imageLabel;
-	public static int width = 160, heigth = 120;
+	public static int width = 160, height = 120;
+	
+	public static int reduz = 20;
+	public static int widthR = width/reduz;
+	public static int heightR = height/reduz;
+	
 	
 	public static void initGUI() {
 		frame = new JFrame("Camera Input Example");  
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-		frame.setSize(width,heigth);  
+		frame.setSize(width,height);  
 		imageLabel = new JLabel();
 		frame.add(imageLabel);
 		frame.setVisible(true);       
 	}
 	
+	/*
+	 * Esta função transforma uma imagem 2d em um vetor unidimensional assim como
+	 * realizado pelo MATLAB, para entrada coerente do vetor na RNA
+	 */
 	public static double[] reshape(Mat matrix){
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -48,8 +57,8 @@ public class OpenRNA extends Matriz{
 		matrix.get(0 , 0, dadosMatriz);
 		
 		int k = 0, i = 0;
-		while(k<40) {
-			for(int j=k;j<totalBytes;i++, j+=40)
+		while(k<widthR) {
+			for(int j=k;j<totalBytes;i++, j+=widthR)
 				resp[i] = (dadosMatriz[j]&0xFF);
 
 			k++;
@@ -66,10 +75,19 @@ public class OpenRNA extends Matriz{
 		VideoCapture capture = new VideoCapture(0);
 		
 		capture.set(Videoio.CAP_PROP_FRAME_WIDTH,width);
-		capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,heigth);
+		capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,height);
 		
-		NeuralNet netPos = new NeuralNet("WR_POS","ANNi1","ANNl1",300,16,2);
-		NeuralNet netS = new NeuralNet("WR_S","ANNi2","ANNl2",300,29,1);
+		reduz = 8;
+		widthR= width/reduz;
+		heightR=height/reduz;
+		NeuralNet netPos = new NeuralNet("WR_POS","ANNi1","ANNl1",(widthR*heightR),16,2);
+		NeuralNet netS = new NeuralNet("WR_S","ANNi2","ANNl2",(widthR*heightR),29,1);
+		
+		//================================================================================
+		
+		/*
+		 * Teste de resultado com a primeira imagem da base de treino
+		 */
 		
 		MatFileReader mfr = new MatFileReader("testePicPos.mat");
 		Map<String, MLArray> mlArrayRetrived = mfr.getContent();
@@ -83,18 +101,23 @@ public class OpenRNA extends Matriz{
 		double[] fotoBCG_DFSD = ((MLDouble)picSize).getArray()[0];
 		
 		System.out.println("x: " + netPos.calculate(fotoBCE_DE)[0]);  //  128,999307706119	
-		System.out.println("y: " + netPos.calculate(fotoBCE_DE)[1]); //  95,0000240373988
+		System.out.println("y: " + netPos.calculate(fotoBCE_DE)[1]);  //  95,0000240373988
 		System.out.println("S: " + netS.calculate(fotoBCG_DFSD)[0]);  // 31,0000000000000
 		
-		NeuralNet BOLA = new NeuralNet("WR_BOLA","ANNbolaI","ANNbolaL",144,12,1);
-		NeuralNet MARCAS = new NeuralNet("WR_MARCAS","ANNmarcasI","ANNmarcasL",48,11,1);
-		NeuralNet GOL = new NeuralNet("WR_GOL","ANNgolI","ANNgolL",144,8,1);
-		NeuralNet OP = new NeuralNet("WR_OP","ANNopI","ANNopL",144,9,1);
+		//================================================================================
+		
+		reduz = 20;
+		widthR= width/reduz;
+		heightR=height/reduz;
+		NeuralNet BOLA = new NeuralNet("WR_BOLA","ANNbolaI","ANNbolaL",(3*widthR*heightR),12,1);
+		NeuralNet MARCAS = new NeuralNet("WR_MARCAS","ANNmarcasI","ANNmarcasL",(widthR*heightR),11,1);
+		NeuralNet GOL = new NeuralNet("WR_GOL","ANNgolI","ANNgolL",(3*widthR*heightR),8,1);
+		NeuralNet OP = new NeuralNet("WR_OP","ANNopI","ANNopL",(3*widthR*heightR),9,1);
 		
 
 		boolean cap = true;
-		int pos = 54;
-		
+		//int pos = 54;
+
 		if( capture.isOpened()) {
 			while (cap){  
 				capture.read(webcamMatImage);
@@ -109,16 +132,26 @@ public class OpenRNA extends Matriz{
 				Mat RNA1 = new Mat();
 				Mat RNA2 = new Mat();
 				
+				
+//=====================================================================================
+//================================= RNA POS E SIZE ======================================================
+//=====================================================================================
+				
 				/*
 				 * tratando a primeira imagem
 				 */
 				/*
+				
+				reduz = 8;
+				widthR= width/reduz;
+				heightR=height/reduz;
+		
 				matBC(imagemRNA1,1.15,20);
 				matExtractMin(imagemRNA1, 170);//170
 				imagemRNA1 = matGrayscale_Average(imagemRNA1);
 				matExtractMax(imagemRNA1, 50);// max 50
 				//Imgproc.medianBlur(imagemRNA1, imagemRNA1, 3);
-				Imgproc.resize(imagemRNA1,RNA1,new Size(20,15));
+				Imgproc.resize(imagemRNA1,RNA1,new Size(widthR,heightR));
 				double[] rna1 = reshape(RNA1);
 				*/
 				
@@ -129,6 +162,8 @@ public class OpenRNA extends Matriz{
 				matBC(imagemRNA2,1.1,20);
 				imagemRNA2 = matGrayscale_Lightless(imagemRNA2);
 				Mat floatI = new Mat(); 
+				
+				// convertendo para o espaço de Fourier
 				imagemRNA2.convertTo(floatI, CvType.CV_32FC1);
 				List<Mat> matList = new ArrayList<Mat>();
 				matList.add(floatI);
@@ -148,27 +183,56 @@ public class OpenRNA extends Matriz{
 				Core.normalize(magnitude, magnitude,0,255, Core.NORM_MINMAX, CvType.
 						CV_8UC1);
 				imagemRNA2 = magnitude.clone();
-				Imgproc.resize(imagemRNA2,RNA2,new Size(20,15));
+				
+				Imgproc.resize(imagemRNA2,RNA2,new Size(widthR,heightR)); //Redução de 8 vezes
 				double[] rna2 = reshape(RNA2);
 				*/
 				
 				/*
+				 * validando RNA da BOLA, é montado um círculo branco na imagem
+				 */
+				
+				/*Point coord = new Point(netPos.calculate(rna1)[0],netPos.calculate(rna1)[1]);
+				double radius =  netS.calculate(rna2)[0]*0.8;
+				
+				//System.out.println("x: " + coord.x + " y: " + coord.y + " S: " + radius);				   
+				if(radius>0)
+					Imgproc.circle(webcamMatImage, coord, (int) radius, new Scalar(255,255,255), 5);
+				
+				
+				matVideo(frame, imageLabel,webcamMatImage);
+				*/
+//=====================================================================================
+//===========================================================================================
+//=====================================================================================
+				
+//=====================================================================================
+//========================== RNA SEGMENTAÇÃO DE FRAMES DA BOLA ======================================================
+//=====================================================================================
+				
+				/*
 				 * Tratando os segmentos de imagens para Bola
 				 */
+				
+				reduz = 20;
+				widthR= width/reduz;
+				heightR=height/reduz;
+		
 				matBC(imagemBola,1.15,10);
 				int i,a = 0,c = 0;
-				Mat akk = new Mat(new Size(6,8), CvType.CV_8UC3);
+				Mat akk = new Mat(new Size(heightR,widthR), CvType.CV_8UC3);
 
-				for(i = 0;i<400;i++) {
-					if(!(c<160)) {
-						a += 6;
+				for(i = 0;i<((width*height)/(widthR*heightR));i++) {
+					if(!(c<width)) {
+						a += heightR;
 						c = 0;
 					}
 			
-					akk = matRegion3(imagemBola, a, c, 6, 8);
-					double[] rnaBola = new double[144];
+					akk = matRegion3(imagemBola, a, c, heightR, widthR);
+					double[] rnaBola = new double[(akk.channels()*heightR*widthR)];
+					
 					int cont = 0;
-					for(int l = 0;l<3;l++) {
+					for(int l = 0;l<akk.channels();l++) {
 						for(int m=0;m<akk.cols();m++) {
 							for(int n=0;n<akk.rows();n++) {
 								rnaBola[cont] = (int) akk.get(n, m)[l];
@@ -178,26 +242,42 @@ public class OpenRNA extends Matriz{
 					}
 
 					if(BOLA.calculate(rnaBola)[0] >= 0.7)
-						matJointRegion3(imagemBola, new int[] {0,0,255}, a, c, 6, 8);
+						matJointRegion3(imagemBola, new int[] {0,0,255}, a, c, heightR, widthR);
 					
-					c+=8;
+					c+=widthR;
 				}
 				
+				matVideo(frame, imageLabel,imagemBola);
+				
+//=====================================================================================
+//=============================================================================================
+//=====================================================================================
+				
+//=====================================================================================
+//============================== RNA SEGMENTAÇÃO DE FRAMES DAS MARCAS ======================================================
+//=====================================================================================
 				
 				/*
 				 * Tratando os segmentos de imagens para MARCAS
 				 */
-				/*matBC(imagemMarcas,1.15,10);
-				Mat akkM = new Mat(new Size(6,8), CvType.CV_8UC1);
+				
+				/*
+				
+				reduz = 20;
+				widthR= width/reduz;
+				heightR=height/reduz;
+				
+				matBC(imagemMarcas,1.15,10);
+				Mat akkM = new Mat(new Size(heightR,widthR), CvType.CV_8UC1);
 				int a = 0,c = 0, i;
 				
-				for(i = 0;i<400;i++) {
-					if(!(c<160)) {
-						a += 6;
+				for(i = 0;i<((height*width)/(widthR*heightR));i++) {
+					if(!(c<width)) {
+						a += heightR;
 						c = 0;
 					}
-					akkM = matRegion1(imagemMarcas, a, c, 6, 8);
-					double[] rnaMarcas = new double[48];
+					akkM = matRegion1(imagemMarcas, a, c, heightR, widthR);
+					double[] rnaMarcas = new double[(widthR*heightR)];
 					int cont = 0;
 					for(int l = 0;l<akkM.channels();l++) {
 						for(int m=0;m<akkM.cols();m++) {
@@ -209,29 +289,47 @@ public class OpenRNA extends Matriz{
 					}
 					
 					if(MARCAS.calculate(rnaMarcas)[0] >= 0.5)
-						matJointRegion3(imagemMarcas, new int[] {0,0,255}, a, c, 6, 8);//a , c 
+						matJointRegion3(imagemMarcas, new int[] {0,0,255}, a, c, heightR, widthR);//a , c 
 					
-					c+=8;
+					c+=widthR;
 				}
+				
+				matVideo(frame, imageLabel,imagemMarcas);
 				*/
+				
+//=====================================================================================
+//===============================================================================================================
+//=====================================================================================
+				
+//=====================================================================================
+//================================= RNA SEGMENTAÇÃO DE FRAMES DO GOL ======================================================
+//=====================================================================================
+				
 				
 				/*
 				 * Tratando os segmentos de imagens para GOL
 				 */
-				/*//matBC(imagemGol,1.2,5);
+				
+				/*
+				
+				reduz = 20;
+				widthR= width/reduz;
+				heightR=height/reduz;
+				
+				//matBC(imagemGol,1.2,5);
 				int i,a = 0,c = 0;
-				Mat akk = new Mat(new Size(6,8), CvType.CV_8UC3);
+				Mat akk = new Mat(new Size(heightR,widthR), CvType.CV_8UC3);
 
-				for(i = 0;i<400;i++) {
-					if(!(c<160)) {
-						a += 6;
+				for(i = 0;i<((height*width)/(widthR*heightR));i++) {
+					if(!(c<width)) {
+						a += heightR;
 						c = 0;
 					}
 			
-					akk = matRegion3(imagemGol, a, c, 6, 8);
-					double[] rnaGol = new double[144];
+					akk = matRegion3(imagemGol, a, c, heightR, widthR);
+					double[] rnaGol = new double[(akk.channels()*widthR*heightR)];
 					int cont = 0;
-					for(int l = 0;l<3;l++) {
+					for(int l = 0;l<akk.channels();l++) {
 						for(int m=0;m<akk.cols();m++) {
 							for(int n=0;n<akk.rows();n++) {
 								rnaGol[cont] = (int) akk.get(n, m)[l];
@@ -241,30 +339,44 @@ public class OpenRNA extends Matriz{
 					}
 
 					if(GOL.calculate(rnaGol)[0] >= 0.9)
-						matJointRegion3(imagemGol, new int[] {0,0,255}, a, c, 6, 8);
+						matJointRegion3(imagemGol, new int[] {0,0,255}, a, c, heightR, widthR);
 					
-					c+=8;
-				}*/
+					c+=widthR;
+				}
+				matVideo(frame, imageLabel,imagemGol);
+				*/
 				
+//=====================================================================================
+//==============================================================================================================
+//=====================================================================================
+				
+//=====================================================================================
+//=========================== RNA SEGMENTAÇÃO DE FRAMES DO OPONENTE ======================================================
+//=====================================================================================
 				
 				/*
-				 * Tratando os segmentos de imagens para GOL
+				 * Tratando os segmentos de imagens para OPONENTE
 				 */
 				//matBC(imagemOP,1.1,0);
 				/*
+				
+				reduz = 20;
+				widthR= width/reduz;
+				heightR=height/reduz;
+				
 				int i,a = 0,c = 0;
-				Mat akk = new Mat(new Size(6,8), CvType.CV_8UC3);
+				Mat akk = new Mat(new Size(heightR,8), CvType.CV_8UC3);
 
-				for(i = 0;i<400;i++) {
-					if(!(c<160)) {
-						a += 6;
+				for(i = 0;i<((height*width)/(widthR*heightR));i++) {
+					if(!(c<width)) {
+						a += heightR;
 						c = 0;
 					}
 			
-					akk = matRegion3(imagemOP, a, c, 6, 8);
-					double[] rnaOP = new double[144];
+					akk = matRegion3(imagemOP, a, c,heightR, widthR);
+					double[] rnaOP = new double[(akk.channels()*heightR*widthR)];
 					int cont = 0;
-					for(int l = 0;l<3;l++) {
+					for(int l = 0;l<akk.channels();l++) {
 						for(int m=0;m<akk.cols();m++) {
 							for(int n=0;n<akk.rows();n++) {
 								rnaOP[cont] = (int) akk.get(n, m)[l];
@@ -274,28 +386,18 @@ public class OpenRNA extends Matriz{
 					}
 
 					if(OP.calculate(rnaOP)[0] <= 0.8)
-						matJointRegion3(imagemOP, new int[] {0,0,255}, a, c, 6, 8);
+						matJointRegion3(imagemOP, new int[] {0,0,255}, a, c, heightR, widthR);
 					
-					c+=8;
+					c+=widthR;
 				}
+				matVideo(frame, imageLabel,imagemOP);
 				*/
-				
-				/*
-				 * validando RNA da BOLA 
-				 */
-				
-				/*Point coord = new Point(netPos.calculate(rna1)[0],netPos.calculate(rna1)[1]);
-				double radius =  netS.calculate(rna2)[0]*0.8;
-				
-				//System.out.println("x: " + coord.x + " y: " + coord.y + " S: " + radius);				   
-				if(radius>0)
-					Imgproc.circle(webcamMatImage, coord, (int) radius, new Scalar(255,255,255), 5);
-				*/
-				
-				matVideo(frame, imageLabel,imagemBola);
-				
+
+//=====================================================================================
+//==============================================================================================================
+//=====================================================================================
+										
 				//Imgcodecs.imwrite("FINAL_"+pos+".jpg",imagemOP);
-				
 				//Thread.sleep(500);
 				//pos++;
 			}  
