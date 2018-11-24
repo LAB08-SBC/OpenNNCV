@@ -1,5 +1,6 @@
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,12 @@ import com.jmatio.io.MatFileReader;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLDouble;
 
-public class OpenRNA extends Matriz{
+import net.sourceforge.jFuzzyLogic.FIS;
+import net.sourceforge.jFuzzyLogic.FunctionBlock;
+import net.sourceforge.jFuzzyLogic.plot.JFuzzyChart;
+import net.sourceforge.jFuzzyLogic.rule.Variable;
+
+public class FuzzyEmotions extends Matriz{
 	
 	private static JFrame frame;
 	private static JLabel imageLabel;
@@ -117,7 +123,28 @@ public class OpenRNA extends Matriz{
 
 		boolean cap = true;
 		//int pos = 54;
+		
+		// Load from 'FCL' file
+	    String fileName = "emotions.fcl";
+	    FIS fisEMO = FIS.load(fileName, true);
+	    String fileName2 = "brilho.fcl";
+	    FIS fisB = FIS.load(fileName2, true);
+	        
+	    if (fisEMO == null || fisB == null) { // Error while loading
+	    	if(fisEMO == null)
+	    		System.err.println("Não carrega: '" + fileName + "'");
+	    	else
+	    		System.err.println("Não carrega: '" + fileName2 + "'");
+	        return;
+	    }
+	   
+	    FunctionBlock functionBlockEMO = fisEMO.getFunctionBlock(null);
+	    JFuzzyChart.get().chart(functionBlockEMO);
+	    
+	    FunctionBlock functionBlockB = fisB.getFunctionBlock(null);
+	    JFuzzyChart.get().chart(functionBlockB);
 
+	    double teste = 0.0;
 		if( capture.isOpened()) {
 			while (cap){  
 				capture.read(webcamMatImage);
@@ -128,6 +155,7 @@ public class OpenRNA extends Matriz{
 				Mat imagemMarcas =  webcamMatImage.clone();
 				Mat imagemGol =  webcamMatImage.clone();
 				Mat imagemOP =  webcamMatImage.clone();
+				Mat FuzzyIm = webcamMatImage.clone();
 				
 				Mat RNA1 = new Mat();
 				Mat RNA2 = new Mat();
@@ -213,7 +241,7 @@ public class OpenRNA extends Matriz{
 				/*
 				 * Tratando os segmentos de imagens para Bola
 				 */
-				
+				/*
 				reduz = 20;
 				widthR= width/reduz;
 				heightR=height/reduz;
@@ -248,7 +276,7 @@ public class OpenRNA extends Matriz{
 				}
 				
 				matVideo(frame, imageLabel,imagemBola);
-				
+				*/
 //=====================================================================================
 //=============================================================================================
 //=====================================================================================
@@ -396,7 +424,55 @@ public class OpenRNA extends Matriz{
 //=====================================================================================
 //==============================================================================================================
 //=====================================================================================
-										
+					
+//=====================================================================================
+//=========================== FUZZY ======================================================
+//=====================================================================================
+				
+				matGrayscale_Luminosity(FuzzyIm);
+				matBC(FuzzyIm,teste,1.0);
+				
+				BigDecimal Luz = new BigDecimal("0");
+				for(int i=0;i<FuzzyIm.cols();i++) {
+					for(int j=0;j<FuzzyIm.rows();j++) {
+						Luz = Luz.add(new BigDecimal(String.valueOf( (int) FuzzyIm.get(j, i)[0] )));
+					}
+				}
+				Luz = new BigDecimal((Luz.doubleValue()/((double)255*width*height)) * 100);
+				//System.out.printf("%.2f\n",Luz.doubleValue());
+				
+				
+				
+				
+				functionBlockEMO.setVariable("luz", Luz.doubleValue());
+			    fisEMO.evaluate();
+			    
+			    Variable medo = functionBlockEMO.getVariable("medo");
+			    Variable confianca = functionBlockEMO.getVariable("confianca");
+
+				functionBlockB.setVariable("medo", fisEMO.getVariable("medo").getValue());
+				functionBlockB.setVariable("confianca", fisEMO.getVariable("confianca").getValue());
+				
+			    fisB.evaluate();
+			    
+			    Variable brilho = functionBlockB.getVariable("brilho");
+			    
+			    System.out.printf("Para L = %.2f ==> Medo = %.2f e Confianca = %.2f ==> Brilho = %.2f\n",
+    		  			Luz.doubleValue(),
+    		  			fisEMO.getVariable("medo").getValue(),
+    		  			fisEMO.getVariable("confianca").getValue(),
+    		  			fisB.getVariable("brilho").getValue());
+			    
+			    teste = fisB.getVariable("brilho").getValue();
+			    		
+				matVideo(frame,imageLabel,FuzzyIm);
+				
+				//Thread.sleep(5000);
+//=====================================================================================
+//==============================================================================================================
+//=====================================================================================
+									
+				
 				//Imgcodecs.imwrite("FINAL_"+pos+".jpg",imagemOP);
 				//Thread.sleep(500);
 				//pos++;

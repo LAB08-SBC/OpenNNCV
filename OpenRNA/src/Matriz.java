@@ -12,6 +12,10 @@ import org.opencv.core.Size;
 
 public class Matriz{
 
+	/*
+	 * Altera o valor de um pixel em um determinado canal
+	 * matPoint(mat, new int{channel,row,col}, valor). 
+	 */
 	public static void matPoint(Mat matrix, int[] info, int value) {
 		int channel = info[0];
 		int row = info[1];
@@ -59,6 +63,10 @@ public class Matriz{
 		}	
 	}
 	
+	/*
+	 * Altera os valores de uma linha de um determinado canal
+	 * matRow(mat, new int{channel,row},valor)
+	 */
 	public static void matRow(Mat matrix, int[] info, int value) {
 		int channel = info[0];
 		int row = info[1];
@@ -68,6 +76,10 @@ public class Matriz{
 
 	}
 	
+	/*
+	 * Altera os valores de uma coluna de um determinado canal
+	 * matCol(mat, new int{channel,col},valor)
+	 */
 	public static void matCol(Mat matrix, int[] info, int value) {
 		int channel = info[0];
 		int col = info[1];
@@ -77,6 +89,10 @@ public class Matriz{
 
 	}
 	
+	/*
+	 * Altera os valores de determinado canal
+	 * matChannel(mat, channel,valor)
+	 */
 	public static void matChannel(Mat matrix, int channel, int value) {
 
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -100,6 +116,11 @@ public class Matriz{
 
 	}
 
+	
+	/*
+	 * Altera os valores de todos os canais
+	 * matAllChannels(mat,valor)
+	 */
 	public static void matAllChannels(Mat matrix, int value) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -117,6 +138,10 @@ public class Matriz{
 		matrix.put(0, 0, dadosMatriz);
 	}
 
+	/*
+	 * Aplica brilho e contraste em um determinado canal
+	 * matChannelBC(mat,channel,b,c)
+	 */
 	public static void matChannelBC(Mat matrix, int channel, double brightness, int contrast) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -150,6 +175,10 @@ public class Matriz{
 
 	}
 	
+	/*
+	 * Aplica brilho e contraste em uma matriz
+	 * matBC(mat,b,c)
+	 */
 	public static void matBC(Mat matrix, double brightness, double contrast) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -169,6 +198,11 @@ public class Matriz{
 
 	}
 
+	/*
+	 * Realiza a extração de valores em um determinado canal. Se o valor do pixel
+	 * for abaixo do valor (value), ela será zerada.
+	 * matChannelExtract(mat,channel,valor)
+	 */
 	public static void matChannelExtract(Mat matrix, int channel, int value) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -207,6 +241,11 @@ public class Matriz{
 		matrix.put(0, 0, dadosMatriz);
 	}
 	
+	/*
+	 * Realiza a extração de máximos valores de uma matriz. Se o valor do pixel for
+	 * acima de value, ele será zerado.
+	 * matExtractMax(mat,value). 
+	 */
 	public static void matExtractMax(Mat matrix, double value) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -227,6 +266,11 @@ public class Matriz{
 		matrix.put(0, 0, dadosMatriz);
 	}
 	
+	/*
+	 * Realiza a extração de mínimos valores de uma matriz. Se o valor do pixel for
+	 * abaixo de value, ele será zerado.
+	 * matExtractMin(mat,value). 
+	 */
 	public static void matExtractMin(Mat matrix, double value) {
 		
 		int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -244,6 +288,9 @@ public class Matriz{
 		matrix.put(0, 0, dadosMatriz);
 	}
 	
+	/*
+	 * Função para imprimir um canal de uma matriz de forma intuitiva.
+	 */
 	public static void matPrintChannel(Mat matrix, int channel) {
 
 		System.out.println("Channel " + channel);
@@ -267,6 +314,9 @@ public class Matriz{
 		System.out.println();
 	}
 	
+	/*
+	 * Função para imprimir uma matriz de forma intuitiva.
+	 */
 	public static void matPrintAll(Mat matrix) {
 
 		for(int k = 0;k < matrix.channels();k++) {
@@ -293,6 +343,14 @@ public class Matriz{
 		}
 	}
 	
+	/*
+	 * Função para extrair uma submatriz de 3 canais de uma matriz, em uma determinada região da matriz
+	 * principal. 
+	 * startR: indica a linha do pixel de começo
+	 * startC: indica a coluna do pixel do começo
+	 * sizeR: largura da submatriz 
+	 * sizeC: altura da submatriz
+	 */
 	public static Mat matRegion3(Mat matrix, int startR, int startC, int sizeR, int sizeC) {
 		
 		Mat transfer = new Mat(new Size(sizeC,sizeR),CvType.CV_8UC3);
@@ -308,6 +366,14 @@ public class Matriz{
 		
 	}
 	
+	/*
+	 * Função para extrair uma submatriz de 1 canal de uma matriz, em uma determinada região da matriz
+	 * principal. 
+	 * startR: indica a linha do pixel de começo
+	 * startC: indica a coluna do pixel do começo
+	 * sizeR: largura da submatriz 
+	 * sizeC: altura da submatriz
+	 */
 	public static Mat matRegion1(Mat matrix, int startR, int startC, int sizeR, int sizeC) {
 		
 		Mat transfer = new Mat(new Size(sizeC,sizeR),CvType.CV_8UC3);
@@ -323,6 +389,14 @@ public class Matriz{
 		
 	}
 	
+	/*
+	 * Função que muda a cor de uma submatriz de uma matriz principal
+	 * int[] valores: [BLUE,GREEN,RED]
+	 * startR: indica a linha do pixel de começo
+	 * startC: indica a coluna do pixel do começo
+	 * sizeR: largura da submatriz 
+	 * sizeC: altura da submatriz
+	 */
 	public static void matJointRegion3(Mat matrix, int[] valores, int startR, int startC, int sizeR, int sizeC) {
 		
 		/*int totalBytes = (int) (matrix.total()*matrix.elemSize());
@@ -351,7 +425,9 @@ public class Matriz{
 	}
 	
 	// Grayscale https://www.johndcook.com/blog/2009/08/24/algorithms-convert-color-grayscale/
-	
+	/*
+	 * Aplica o filtro Grayscale_Lightless em uma matriz, retornando uma mat de 1 canal
+	 */
 	public static Mat matGrayscale_Lightless(Mat matrix) {
 		
 		Mat gray = new Mat(matrix.size(),CvType.CV_8UC1);
@@ -386,6 +462,9 @@ public class Matriz{
 		return gray;
 	}
 	
+	/*
+	 * Aplica o filtro Grayscale_Average em uma matriz, retornando uma mat de 1 canal
+	 */
 	public static Mat matGrayscale_Average(Mat matrix) {
 		
 		Mat gray = new Mat(matrix.size(),CvType.CV_8UC1);
@@ -406,6 +485,9 @@ public class Matriz{
 		return gray;
 	}
 	
+	/*
+	 * Aplica o filtro Grayscale_Luminosity em uma matriz, retornando uma mat de 1 canal
+	 */
 	public static Mat matGrayscale_Luminosity(Mat matrix) {
 		
 		Mat gray = new Mat(matrix.size(),CvType.CV_8UC1);
@@ -427,7 +509,6 @@ public class Matriz{
 	}
 
 	// VideoViewer
-	
 	public static BufferedImage toBufferedImage(Mat matrix){
 		int type = BufferedImage.TYPE_BYTE_GRAY;
 		if ( matrix.channels() > 1 ) 
@@ -443,6 +524,9 @@ public class Matriz{
 		return image;
 	}
 	
+	/*
+	 * Função que coloca a imagem desejada no vídeo criado pelo jFrame.
+	 */
 	public static void matVideo(JFrame frame, JLabel imageLabel, Mat matrix) {
 		if( !matrix.empty() ){  
 			Image tempImage= toBufferedImage(matrix);
