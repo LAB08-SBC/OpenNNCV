@@ -13,7 +13,7 @@ A arquitetura proposta da Figura 5.1 é dividida nos módulos de _hardware_ e _s
 O _software_ está relacionado com a implementação da técnica de identificação dos objetos presentes no campo de futebol, como a bola, linhas, traves, adversários e companheiros de time. Além disso, pode-se observar o banco de imagens em (a) e o computador (b) que executa duas toolboxes do MATLAB [7] conhecidas como _Neural Network Toolbox_ e _Statistics and Machine Learning Toolbox_.
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/28567780/32135686-fd12e826-bbe1-11e7-9b8e-8b909cda75f1.jpg" width="500">
+<img src="https://user-images.githubusercontent.com/28567780/50059602-35ace900-0170-11e9-9894-4a167269b262.png" width="600">
 </p>
 
 Foi proposto uma arquitetura para o uso de técnicas de processamento de imagem e visão computacional, além da utilização da Raspberry Pi 3B para controlar os servos motores do humanoide de uma forma prática. Os detalhes do controle dos motores pode ser encontrado em [8].
