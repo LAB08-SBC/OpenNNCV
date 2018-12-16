@@ -13,8 +13,9 @@ trainPic = (fim-inicio)+1;
 
 reduz = 1/8;
 
-%pasta = 'C:\Users\Gilmar Correia\Documents\Documentos\Projetos\GitHub\RNA-OpenCV\Li??es\LaplacianFilter\';
-pasta = '/Users/junior/Desktop/GitHub/RNA-OpenCV/Licoes/LaplacianFilter/';
+
+pasta = 'C:\Users\Gilmar Jeronimo\Documents\Documentos\Projetos\GitHub\LAB GIT\OpenNNCV\LaplacianFilter\';
+%pasta = '/Users/junior/Desktop/GitHub/RNA-OpenCV/Licoes/LaplacianFilter/';
 tipo = 'BCGL';
 
 ANNimagens = zeros(width*reduz,heigth*reduz,1,trainPic);
@@ -46,9 +47,9 @@ for hiddenNeurons = 1:35
     netY.trainParam.max_fail = 100;
     netSize.trainParam.max_fail = 100;
     
-    netX=train(netX,ANNimagens,ANNlabels(1,:));
-    netY=train(netY,ANNimagens,ANNlabels(2,:));
-    netSize=train(netSize,ANNimagens,ANNlabels(3,:));
+    netX=train(netX,ANNimagens,ANNlabels(1,:),'useGPU','yes');
+    netY=train(netY,ANNimagens,ANNlabels(2,:),'useGPU','yes');
+    netSize=train(netSize,ANNimagens,ANNlabels(3,:),'useGPU','yes');
 
     %% VALIDA??O
     j=1;
