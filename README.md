@@ -34,7 +34,11 @@ Os principais resultados obtidos foram executar as RNA’s como uma aproximaçã
 
 **_VideoOpenCV:_** Códigos em Java no qual se capturava as imagens e salva de acordo com suas propriedades e filtros aplicados. São os código disponíveis:
 	
-* VideoOpenCV.java: Coloca na tela a imagem capturada por uma _webcam_ conectado ao computador ou ao microcontrolador, e organiza por pasta e tipo as fotos capturadas. As _%_##.jpg_ as imagens originais, _BC_%##.jpg_ as imagens aplicadas brilho e contraste, _BCG_%##.jpg_ as imagens com brilho, contraste e filtro _grayscale_ e _BCGL_%##.jpg_ as imagens com brilho, contraste, filtro _grayscale_ e filtro laplaciano. As imagens que aparecem com R seriam os resultados desenvolvidos manualmente para realizar o treinamento das redes neurais. Os termos % podem representar C - Adversários, M - Marcações, G - Gol, enquanto ## são os números das imagens. *Matriz.java: Biblioteca desenvolvida para manipular e visualizar mais facilmente imagens tratadas e coletadas pelo OpenCV, mais detalhes em [10]. *ImageViewer.java: Código adaptado de [11] para plotar vídeo na tela utilizando OpenCV.
+* VideoOpenCV.java: Coloca na tela a imagem capturada por uma _webcam_ conectado ao computador ou ao microcontrolador, e organiza por pasta e tipo as fotos capturadas. As _%-##.jpg_ as imagens originais, _BC-%##.jpg_ as imagens aplicadas brilho e contraste, _BCG-%##.jpg_ as imagens com brilho, contraste e filtro _grayscale_ e _BCGL-%##.jpg_ as imagens com brilho, contraste, filtro _grayscale_ e filtro laplaciano. As imagens que aparecem com R seriam os resultados desenvolvidos manualmente para realizar o treinamento das redes neurais. Os termos % podem representar C - Adversários, M - Marcações, G - Gol, enquanto ## são os números das imagens. 
+
+* Matriz.java: Biblioteca desenvolvida para manipular e visualizar mais facilmente imagens tratadas e coletadas pelo OpenCV, mais detalhes em [10]. 
+
+* ImageViewer.java: Código adaptado de [11] para plotar vídeo na tela utilizando OpenCV.
 
 **_LaplacianFilter:_** Contém todas as imagens capturadas utilizadas, os códigos dentro dessa pasta realizam alguma operação com as imagens, seja aplicar novos filtros, converter tamanho das matrizes, ou somente renomear as imagens. 
 	
