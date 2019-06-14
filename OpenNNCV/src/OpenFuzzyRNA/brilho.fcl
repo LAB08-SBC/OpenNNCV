@@ -1,0 +1,50 @@
+FUNCTION_BLOCK freio	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT	
+	medo : REAL;
+	confianca : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT	
+	brilho : REAL;
+END_VAR
+
+FUZZIFY medo	
+	TERM baixo := (0, 1)(30, 1)(50,0);
+	TERM medio := (25,0) (50,1) (75,0);
+	TERM alto := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+FUZZIFY confianca			
+	TERM baixo := (0, 1)(30, 1)(50,0);
+	TERM medio := (25,0) (50,1) (75,0);
+	TERM alto := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+DEFUZZIFY brilho		
+	TERM agil := (1, 1)(1.6, 1)(2,0);
+	TERM normal := (1.5,0) (2,1) (2.5,0);
+	TERM cauteloso := (2,0)(2.5,1)(5,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgans Law)
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+
+	RULE 1 : IF medo IS baixo AND confianca IS baixo THEN brilho IS normal;
+	RULE 2 : IF medo IS baixo AND confianca IS medio THEN brilho IS agil;
+	RULE 3 : IF medo IS baixo AND confianca IS alto THEN brilho IS agil;
+	RULE 4 : IF medo IS medio AND confianca IS baixo THEN brilho IS cauteloso;
+	RULE 5 : IF medo IS medio AND confianca IS medio THEN brilho IS normal;
+	RULE 6 : IF medo IS medio AND confianca IS alto THEN brilho IS agil;
+	RULE 7 : IF medo IS alto AND confianca IS baixo THEN brilho IS cauteloso;
+	RULE 8 : IF medo IS alto AND confianca IS medio THEN brilho IS cauteloso;
+	RULE 9 : IF medo IS alto AND confianca IS alto THEN brilho IS normal;		
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

@@ -1,0 +1,50 @@
+FUNCTION_BLOCK freio	// Block definition (there may be more than one block per file)
+
+// Define input variables
+VAR_INPUT	
+	luz : REAL;
+END_VAR
+
+// Define output variable
+VAR_OUTPUT	
+	medo : REAL;
+	confianca : REAL; 
+END_VAR
+
+FUZZIFY luz	
+	TERM baixa := (0, 1)(30, 1)(50,0);
+	TERM media := (25,0) (50,1) (75,0);
+	TERM alta := (50,0)(75,1)(100,1);
+END_FUZZIFY
+
+DEFUZZIFY medo		
+	TERM baixo := (0, 1)(30, 1)(50,0);
+	TERM medio := (25,0) (50,1) (75,0);
+	TERM alto := (50,0)(75,1)(100,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+DEFUZZIFY confianca		
+	TERM baixo := (0, 1)(30, 1)(50,0);
+	TERM medio := (25,0) (50,1) (75,0);
+	TERM alto := (50,0)(75,1)(100,1);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;	// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgans Law)
+	ACT : MIN;	// Use 'min' activation method
+	ACCU : MAX;	// Use 'max' accumulation method
+
+	RULE 1 : IF luz IS baixa THEN medo IS alto;
+	RULE 2 : IF luz IS media THEN medo IS medio;
+	RULE 3 : IF luz IS alta THEN medo IS baixo;
+	RULE 4 : IF luz IS baixa THEN confianca IS baixo;
+	RULE 5 : IF luz IS media THEN confianca IS medio;
+	RULE 6 : IF luz IS alta THEN confianca IS alto;
+
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK

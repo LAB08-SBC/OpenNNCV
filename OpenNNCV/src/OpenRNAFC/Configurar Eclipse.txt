@@ -1,0 +1,1 @@
+http://www.planetofbits.com/eclipse/increase-jvm-heap-size-in-eclipse/
