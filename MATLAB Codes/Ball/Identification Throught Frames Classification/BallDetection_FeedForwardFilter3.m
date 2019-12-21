@@ -20,10 +20,12 @@ scale = 1/20;
 % Inicializa um vetor de tamanho que guardará as imagens segmentadas
 % [8*6,totalDataSet,400] = [mascara, total de imagens, subImagens de 
 % uma imagem]
-segImage = zeros((width*scale)*(heigth*scale)*3,totalDataSet,(int32(1/(scale*scale))));
+segImage = zeros((width*scale)*(heigth*scale),totalDataSet,(int32(1/(scale*scale))));
+%segImage = zeros((width*scale)*(heigth*scale)*3,totalDataSet,(int32(1/(scale*scale))));
 
 % Definindo vetor de Inputs
-ANNballI = zeros((width*scale)*(heigth*scale)*3,totalDataSet*(int32(1/(scale*scale))));
+ANNballI = zeros((width*scale)*(heigth*scale),totalDataSet*(int32(1/(scale*scale))));
+%ANNballI = zeros((width*scale)*(heigth*scale)*3,totalDataSet*(int32(1/(scale*scale))));
 
 % Definindo vetor de labels
 ANNballL = data;
@@ -33,10 +35,10 @@ ANNvalidations = zeros(20,totalDataSet+1);
 
 
 %Inicializa a pasta usada
-folder='C:\Users\Gilmar Jeronimo\Desktop\Testes MATLAB\DataBase\Ball\';
+folder='C:\Users\Gilmar Jeronimo\Documents\Documentos\Projetos\GitHub\LAB GIT\OpenNNCV\DataBase\Ball\';
 %folder='Users/junior/Desktop/Testes MATLAB/DataBase/Ball/';
-folder='E:\Testes MATLAB\DataBase\Ball\';
-type = 'A';
+%folder='E:\Testes MATLAB\DataBase\Ball\';
+type = 'BCG';
 
 img=1;
 index = 1;
@@ -84,18 +86,18 @@ save('ANNballL.mat','ANNballL');
 
 %% Mostrando a imagem segmentada
 
-% img = 134; 
-% index = (((img-1)*int32(1/(scale*scale)))+1);
-% for i = 1:1/scale
-%     for j = 1:1/scale
-%         figure(1);
-%         graph = subplot('Position',[(j-1)*scale (1-(i*scale)) scale scale]);
-%             imshow(uint8(reshape(segImage(:,img,((1/scale)*(i-1))+j),(width*scale),(heigth*scale),channels)));
-%         
-%             text(graph,4,3,1,int2str(data(index)))
-%             index = index +1;
-%     end
-% end
+ img = 134; 
+ index = (((img-1)*int32(1/(scale*scale)))+1);
+ for i = 1:1/scale
+     for j = 1:1/scale
+         figure(1);
+             graph = subplot('Position',[((j-1)*scale) (1-(i*scale)) 0.045 0.045]);
+             %graph = subplot('Position',[((j-1)*scale) (1-(i*scale)) scale scale]);
+             imshow(uint8(reshape(segImage(:,img,((1/scale)*(i-1))+j),(width*scale),(heigth*scale),channels)));
+             text(graph,4,3,1,int2str(data(index)))
+             index = index +1;
+     end
+ end
 
 %% TREINANDO O FILTRO
 
