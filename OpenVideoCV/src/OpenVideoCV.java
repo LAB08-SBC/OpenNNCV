@@ -11,7 +11,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
-import org.opencvext.matrix.MatrixOpenCV_Ext;
+//import org.opencvext.matrix.MatrixOpenCV_Ext;
 
 public class OpenVideoCV extends MatrixOpenCV_Ext{
 	
@@ -52,8 +52,11 @@ public class OpenVideoCV extends MatrixOpenCV_Ext{
 				//imagem = matGrayscale_Luminosity(imagem);
 				//saveOpponentImages(imagem,initial);
 				
+				double t = System.nanoTime()/1000000.0;
 				
+				Mat[] teste = matSegmentation(imagem,new Size(8,6));
 				
+				System.out.println(((System.nanoTime()/1000000.0) - t) + " ms");
 				
 				// Mostra a imagem
 				matVideo(frame, imageLabel,imagem);

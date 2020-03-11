@@ -24,8 +24,8 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 	private static float scale = (float) (1.0/20.0);
 	
 	private static int imgNumber = 1;
-	private static String folder = "C:\\Users\\Gilmar Jeronimo\\Desktop\\Testes MATLAB\\OpenNNCV\\src\\OpenRNAFC\\";
-	//private static String folder = "/root/workspace/OpenNNCV/src/OpenRNAFC/";
+	//private static String folder = "C:\\Users\\Gilmar Jeronimo\\Desktop\\Testes MATLAB\\OpenNNCV\\src\\OpenRNAFC\\";
+	private static String folder = "/root/workspace/OpenNNCV/src/OpenRNAFC/";
 	
 	public static void main(String[] args){
 	    
@@ -57,15 +57,15 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 		} catch(Exception e) {
 			System.out.println(e);
 		}
-		System.out.println(System.nanoTime()-initial);
+		System.out.println("nn load time: " + ((System.nanoTime()-initial)/1000000000.0));
 		
 
 		boolean webcamCapture = true;
 
-		// Se achou a webcam conectada irá mostrar na tela
+		// Se achou a webcam conectada irï¿½ mostrar na tela
 		if( capture.isOpened()) {
 			while (webcamCapture){  
-				// A imagem capturada na webcam é salva em webcamMatImage
+				// A imagem capturada na webcam ï¿½ salva em webcamMatImage
 				capture.read(webcamMatImage);		
 				initial = System.nanoTime();
 				try {
@@ -76,7 +76,8 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 				} catch(Exception e) {
 					System.out.println(e);
 				}
-				System.out.println(System.nanoTime()-initial);
+				
+				System.out.println("image segmentation time: " + ((System.nanoTime()-initial)/1000000000.0));
 				// Mostra a imagem
 				matVideo(frame, imageLabel,webcamMatImage);
 			}  
@@ -87,8 +88,8 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 	}
 	
 	/*
-	 * O código para captura de tela em formato de vídeo e a classe ImageViewer 
-	 * é baseado no código de: https://
+	 * O cï¿½digo para captura de tela em formato de vï¿½deo e a classe ImageViewer 
+	 * ï¿½ baseado no cï¿½digo de: https://
 	 */
 	public static void initGUI(int camNumber) {
 		frame = new JFrame("Camera Input Example");  
@@ -149,7 +150,8 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 	
 	public static void opponentIdentification(NeuralNet OPP, Mat image, int widthScale, int heightScale, int[] frameColor) throws InterruptedException, FileNotFoundException, IOException {
 		//matBC(image,1.1,0);
-		imageSegmentation(OPP,image, heightScale,widthScale, image.channels(), (float)(0.8), false, frameColor);
+		imageSegmentation(OPP,image, heightScale,widthScale, image.channels(), (float)(0.5), true, frameColor);
+		//imageSegmentation(OPP,image, heightScale,widthScale, image.channels(), (float)(0.8), false, frameColor);
 	}
 	
 	public void opponentIdentification(NeuralNet OPP, Mat image, int widthScale, int heightScale, int[] frameColor, int delaySave) throws InterruptedException, FileNotFoundException, IOException {
@@ -160,6 +162,49 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 		imgNumber++;
 	}
 	
+	public static void imageSegmentation(NeuralNet ANN, Mat image, int heightScale, int widthScale, int channels, float value, boolean geq,int[] frameColor) throws FileNotFoundException, IOException, InterruptedException {
+		
+		
+		Mat[] frames = matSegmentation(image,new Size(widthScale,heightScale));
+		
+		boolean[] results = new boolean[(int) (1/(scale*scale)) + 1];
+		
+		for (boolean b : results)
+			b = false;
+		
+		
+		for(int frameNumber = 0, row = 0, col = 0;frameNumber<=(1/(scale*scale));frameNumber++) {
+			
+			Mat frame = frames[frameNumber];
+			
+			double[] inputVector = new double[(frame.channels()*heightScale*widthScale)];
+			
+			int counter = 0;
+			
+			for(int l = 0;l<frame.channels();l++) {
+				for(int m=0;m<frame.cols();m++) {
+					for(int n=0;n<frame.rows();n++) {
+						inputVector[counter] = (int) frame.get(n, m)[l];
+						counter++;
+					}
+				}
+			}
+
+			if (geq) {
+				if(ANN.calculate(inputVector)[0] >= value) 
+					results[frameNumber] = true;
+			}
+			else {
+				if(ANN.calculate(inputVector)[0] <= value) 
+					results[frameNumber] = true;
+			}
+			
+		}
+		
+		matANNResults(image, new Size(widthScale,heightScale), frameColor, results);
+		
+	}
+	/*
 	public static void imageSegmentation(NeuralNet ANN, Mat image, int heightScale, int widthScale, int channels, float value, boolean geq,int[] frameColor) throws FileNotFoundException, IOException, InterruptedException {
 		Mat frame = new Mat();
 		
@@ -205,6 +250,6 @@ public class OpenRNA extends MatrixOpenCV_Ext{
 			col+=widthScale;
 		}
 		
-	}
+	}*/
 	
 }
